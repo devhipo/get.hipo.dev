@@ -1,1 +1,55 @@
-Hello get.hipo.dev
+REPO_URL="https://github.com/devhipo/hipo"
+INSTALL_DIR="$HOME"
+RELEASE_API_URL="https://api.github.com/repos/devhipo/hipo/releases/latest"
+
+echo "Fetching the latest release from $RELEASE_API_URL..."
+LATEST_TAG=$(curl -s $RELEASE_API_URL | grep -oP '"tag_name": "\K(.*)(?=")')
+
+if [ -z "$LATEST_TAG" ]; then
+  echo "Failed to fetch the latest release tag. Exiting."
+  exit 1
+fi
+
+echo "Latest release tag: $LATEST_TAG"
+
+# Determine the OS
+OS=""
+
+case "$(uname -s)" in
+    Darwin)
+        OS="macos"
+        ;;
+    Linux)
+        OS="ubuntu"
+        ;;
+    *)
+        echo "Unsupported OS. Exiting."
+        exit 1
+        ;;
+esac
+
+# Construct the download URL for the specific file
+FILE_NAME="hipo-$OS-X64-$LATEST_TAG"
+
+DOWNLOAD_URL="https://github.com/devhipo/hipo/releases/download/$LATEST_TAG/$FILE_NAME"
+
+echo "Downloading binary from $DOWNLOAD_URL..."
+curl -L $DOWNLOAD_URL -o /tmp/$FILE_NAME
+
+if [ $? -ne 0 ]; then
+  echo "Failed to download the file. Exiting."
+  exit 1
+fi
+
+# Move the downloaded file to the home directory
+echo "Installing the executable to $INSTALL_DIR..."
+mv /tmp/$FILE_NAME $INSTALL_DIR/hipo
+
+if [ $? -ne 0 ]; then
+  echo "Failed to install the executable. Exiting."
+  exit 1
+fi
+
+chmod +x $INSTALL_DIR/hipo
+
+echo "Installation complete. hipo is installed in $INSTALL_DIR."
