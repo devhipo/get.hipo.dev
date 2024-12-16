@@ -52,7 +52,7 @@ FILE_NAME="hipo-$OS-$ARCH-$LATEST_TAG"
 DOWNLOAD_URL="https://github.com/devhipo/hipo/releases/download/$LATEST_TAG/$FILE_NAME"
 
 echo "Downloading binary from $DOWNLOAD_URL..."
-curl -s -o "/tmp/$FILE_NAME" "$DOWNLOAD_URL"
+curl -s -L "$DOWNLOAD_URL" -o "/tmp/$FILE_NAME"
 
 if [ $? -ne 0 ]; then
   echo "Failed to download the file. Exiting."
