@@ -5,7 +5,7 @@ RELEASE_API_URL="https://api.github.com/repos/devhipo/hipo/releases/latest"
 
 echo "Fetching the latest release from $RELEASE_API_URL..."
 
-LATEST_TAG=$(curl -s $RELEASE_API_URL | grep -oP '"tag_name": "\K(.*)(?=")')
+LATEST_TAG=$(curl -s $RELEASE_API_URL | perl -nle 'print $& while m{"tag_name": "\K(.*)(?=")}g')
 
 if [ -z "$LATEST_TAG" ]; then
   echo "Failed to fetch the latest release tag. Exiting."
@@ -18,32 +18,32 @@ echo "Latest release tag: $LATEST_TAG"
 OS=""
 
 case "$(uname -s)" in
-    Darwin)
-        OS="macos"
-        ;;
-    Linux)
-        OS="linux"
-        ;;
-    *)
-        echo "Unsupported OS. Exiting."
-        exit 1
-        ;;
+  Darwin)
+    OS="macos"
+    ;;
+  Linux)
+    OS="linux"
+    ;;
+  *)
+    echo "Unsupported OS. Exiting."
+    exit 1
+    ;;
 esac
 
 case "$(uname -m)" in
-    x86_64)
-        ARCH="x64"
-        ;;
-    arm64)
-        ARCH="arm64"
-        ;;
-    aarch64)
-        ARCH="arm64"
-        ;;
-    *)
-        echo "Unsupported architecture: $ARCH. Exiting."
-        exit 1
-        ;;
+  x86_64)
+    ARCH="x64"
+    ;;
+  arm64)
+    ARCH="arm64"
+    ;;
+  aarch64)
+    ARCH="arm64"
+    ;;
+  *)
+    echo "Unsupported architecture: $ARCH. Exiting."
+    exit 1
+    ;;
 esac
 
 # Construct the download URL for the specific file
