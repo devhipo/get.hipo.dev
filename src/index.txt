@@ -1,8 +1,10 @@
-REPO_URL="https://github.com/devhipo/hipo"
-INSTALL_DIR="$HOME/.hipo"
+#!/usr/bin/env bash
+
+INSTALL_DIR="$HOME/.hipo/bin"
 RELEASE_API_URL="https://api.github.com/repos/devhipo/hipo/releases/latest"
 
 echo "Fetching the latest release from $RELEASE_API_URL..."
+
 LATEST_TAG=$(curl -s $RELEASE_API_URL | grep -oP '"tag_name": "\K(.*)(?=")')
 
 if [ -z "$LATEST_TAG" ]; then
@@ -50,14 +52,14 @@ FILE_NAME="hipo-$OS-$ARCH-$LATEST_TAG"
 DOWNLOAD_URL="https://github.com/devhipo/hipo/releases/download/$LATEST_TAG/$FILE_NAME"
 
 echo "Downloading binary from $DOWNLOAD_URL..."
-curl -L $DOWNLOAD_URL -o /tmp/$FILE_NAME
+curl -s -o "/tmp/$FILE_NAME" "$DOWNLOAD_URL"
 
 if [ $? -ne 0 ]; then
   echo "Failed to download the file. Exiting."
   exit 1
 fi
 
-mkdir -p $INSTALL_DIR
+mkdir -p "$INSTALL_DIR"
 
 # Move the downloaded file to the home directory
 echo "Installing the executable to $INSTALL_DIR..."
@@ -68,17 +70,20 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-chmod +x $INSTALL_DIR/hipo
+chmod +x "$INSTALL_DIR/hipo"
 
 # Add the installation directory to the PATH in .bashrc or .zshrc
 SHELL_RC=""
 
-if [ -n "$BASH_VERSION" ]; then
+if [[ "$SHELL" == *bash ]]; then
   SHELL_RC="$HOME/.bashrc"
-elif [ -n "$ZSH_VERSION" ]; then
+elif [[ "$SHELL" == *zsh ]]; then
   SHELL_RC="$HOME/.zshrc"
 else
-  echo "Unsupported shell. Please manually add $INSTALL_DIR to your PATH."
+  cat <<EOF
+Unsupported shell. Please manually add $INSTALL_DIR to your PATH.
+export PATH="$INSTALL_DIR:\$PATH"
+EOF
   exit 1
 fi
 
