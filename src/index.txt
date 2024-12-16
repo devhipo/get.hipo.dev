@@ -52,9 +52,9 @@ FILE_NAME="hipo-$OS-$ARCH-$LATEST_TAG"
 DOWNLOAD_URL="https://github.com/devhipo/hipo/releases/download/$LATEST_TAG/$FILE_NAME"
 
 echo "Downloading binary from $DOWNLOAD_URL..."
-curl -s -o "/tmp/$FILE_NAME" "$DOWNLOAD_URL"
+curl -s -L "$DOWNLOAD_URL" -o "/tmp/$FILE_NAME"
 
-if [ $? -ne 0 ]; then
+if [ ! $? ]; then
   echo "Failed to download the file. Exiting."
   exit 1
 fi
@@ -63,9 +63,9 @@ mkdir -p "$INSTALL_DIR"
 
 # Move the downloaded file to the home directory
 echo "Installing the executable to $INSTALL_DIR..."
-mv /tmp/$FILE_NAME $INSTALL_DIR/hipo
+mv "/tmp/$FILE_NAME" "$INSTALL_DIR/hipo"
 
-if [ $? -ne 0 ]; then
+if [ ! $? ]; then
   echo "Failed to install the executable. Exiting."
   exit 1
 fi
@@ -89,7 +89,10 @@ fi
 
 if ! grep -q "$INSTALL_DIR" "$SHELL_RC"; then
   echo "Adding $INSTALL_DIR to PATH in $SHELL_RC..."
-  echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> "$SHELL_RC"
+  cat <<EOF >> "$SHELL_RC"
+export PATH="$INSTALL_DIR:\$PATH"
+
+EOF
   echo "Path successfully updated. Please restart your terminal or run 'source $SHELL_RC' to apply the changes."
 else
   echo "$INSTALL_DIR is already in PATH in $SHELL_RC."
